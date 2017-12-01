@@ -3,6 +3,11 @@ var input = [
   '1111',
   '1234',
   '91212129',
+  '1212',
+  '1221',
+  '123425',
+  '123123',
+  '12131415',
   puzzleInput
 ]
 
@@ -18,7 +23,7 @@ var day1 = function() {
       }
     }
 
-    // console.log(floor)
+    // console.log(sum)
     $('#day1').append(input[i])
       .append('<br>&emsp;')
       .append(sum)
@@ -29,9 +34,18 @@ var day1 = function() {
 var day1Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var numbers = input[i]
+    var sum = 0
+    for (var n = 0; n < numbers.length; n++) {
+      var nextIndex = (n + (numbers.length / 2)) % numbers.length
+      if (numbers[n] == numbers[nextIndex]) {
+        sum += Number(numbers[n])
+      }
+    }
+    // console.log(sum)
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(sum)
       .append('<br>')
   }
 
