@@ -80,12 +80,75 @@ var day3 = function() {
 
 var day3Part2 = function () {
 
+  var numInputs = $.map(input, function(val) {
+    return Number(val)
+  })
+  var numInputIdx = 0
+  var results = []
+
+  var gridSize = 20
+  var i = 1
+  var grid = []
+  grid[0] = []
+  grid[0][0] = 1
+  var x = 0
+  var y = 0
+  var minX = 0
+  var minY = 0
+  var steps = 1
+  var repeat = true
+  var direction = 3 // 0^ 1< 2V 3>
+  while (i++ < gridSize) {
+    var stepsLeft = steps
+    if (!repeat) {
+      steps++
+    }
+    repeat = !repeat
+    while (stepsLeft--) {
+      switch (direction) {
+        case 0: y++;break;
+        case 1: x--;break;
+        case 2: y--;break;
+        case 3: x++;break;
+      }
+      minX = x < minX ? x : minX
+      minY = y < minY ? y : minY
+      if (grid[x] === undefined) {
+        grid[x] = []
+      }
+      var surroundingSum = 0
+      if (grid[x-1]) {
+        surroundingSum += grid[x-1][y-1] ? grid[x-1][y-1] : 0
+        surroundingSum += grid[x-1][y] ? grid[x-1][y] : 0
+        surroundingSum += grid[x-1][y+1] ? grid[x-1][y+1] : 0
+      }
+      surroundingSum += grid[x][y-1] ? grid[x][y-1] : 0
+      surroundingSum += grid[x][y+1] ? grid[x][y+1] : 0
+      if (grid[x+1]) {
+        surroundingSum += grid[x+1][y-1] ? grid[x+1][y-1] : 0
+        surroundingSum += grid[x+1][y] ? grid[x+1][y] : 0
+        surroundingSum += grid[x+1][y+1] ? grid[x+1][y+1] : 0
+      }
+      grid[x][y] = surroundingSum
+      if (surroundingSum > numInputs[numInputIdx]) {
+        results.push(surroundingSum)
+        numInputIdx++
+      }
+
+    }
+    // turn left
+    direction = (direction + 1) % 4
+  }
+
+  // printgrid(grid)
+
   for (var i = 0; i < input.length; i++) {
 
-    // console.log(sum)
+    larger = results[i]
+
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(larger)
       .append('<br>')
   }
 
