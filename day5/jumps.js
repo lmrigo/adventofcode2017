@@ -36,10 +36,28 @@ var day5 = function() {
 var day5Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var steps = 0
+    var jumps = $.map(input[i].split(/\s/), function(val) {
+      return Number(val)
+    })
+    var pc = 0
+    var jump = jumps[pc]
+    while (jump !== undefined) {
+      var prevPc = pc
+      var nextPc = pc + jump
+      if (jump >= 3) {
+        jumps[prevPc] = jumps[prevPc] - 1
+      } else {
+        jumps[prevPc] = jumps[prevPc] + 1
+      }
+      steps++
+      pc = nextPc
+      jump = jumps[pc]
+    }
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(steps)
       .append('<br>')
   }
 
