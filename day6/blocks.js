@@ -63,10 +63,28 @@ var redistributeBlocks = function (blocks) {
 var day6Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var blocks = $.map(input[i].split(/\s+/), function (val) {
+      return Number(val)
+    })
+
+    var repeated
+    var history = []
+    var infiniteLoopFound = false
+    while (!infiniteLoopFound) {
+      var state = blocks2String(blocks)
+      if (!history.includes(state)) {
+        history.push(state)
+        blocks = redistributeBlocks(blocks)
+      } else {
+        repeated = state
+        infiniteLoopFound = true
+      }
+    }
+    var distance = history.length - history.indexOf(state)
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(distance)
       .append('<br>')
   }
 
