@@ -15,10 +15,12 @@ cntj (57)`
  ,puzzleInput
 ]
 
+var programs = []
+
 var day7 = function() {
 
   for (var i = 0; i < input.length; i++) {
-    var programs = []
+    programs = []
     var lines = input[i].split(/\n/)
     $.each(lines, function(idx, val) {
       var line = val.split(/\s/)
@@ -36,8 +38,8 @@ var day7 = function() {
         children: children
       })
     })
-    var treeRoot = buildTree(programs)
-    console.log(treeRoot)
+    var treeRoot = findRoot(programs)
+    // console.log(treeRoot)
 
     // console.log()
     $('#day7').append(input[i])
@@ -45,30 +47,6 @@ var day7 = function() {
       .append(treeRoot.name)
       .append('<br>')
   }
-}
-
-var buildTree = function(programs) {
-  var root = findRoot(programs)
-  // var progsLeft = $map.(programs, function (val) {
-  //   return val.name
-  // })
-  // while (progsLeft.length > 0) {
-  //   var idx = programs.findIndex(function (val) {
-  //     return val.children.length > 0
-  //   })
-  //   if (idx >= 0) {
-  //     progsLeft.splice(idx, 1)
-  //     var next = programs[idx]
-  //     if (!root) {
-  //       root = next
-  //     }
-
-
-  //   } else {
-
-  //   }
-  // }
-  return root
 }
 
 var findRoot = function(programs) {
@@ -91,15 +69,93 @@ var findRoot = function(programs) {
 var day7Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    programs = []
+    var lines = input[i].split(/\n/)
+    $.each(lines, function(idx, val) {
+      var line = val.split(/\s/)
+      var name = line[0]
+      var weight = Number(line[1].replace(/\(|\)/g,''))
+      var children = []
+      if (line[2] === '->') {
+        for (var w = 3; w < line.length; w++) {
+          children.push(line[w].replace(',',''))
+        }
+      }
+      programs.push({
+        name: name,
+        weight: weight,
+        children: children
+      })
+    })
+    var treeRoot = findRoot(programs)
+    buildTree(treeRoot)
+    //console.log(treeRoot)
+    // follow the false
+    var falseNode = findLastFalse(treeRoot)
+    //console.log('falso: ', falseNode.name)
+    // get the children difference and subtract from own weight
+    var big = -1
+    var normal = Number.MAX_SAFE_INTEGER
+    $.each(falseNode.children, function(idx, child) {
+      if (child.accWeight < normal) {
+        normal = child.accWeight
+      }
+      if (child.accWeight > big) {
+        big = child.accWeight
+      }
+    })
+    var targetNode = falseNode.children.find(function(val) {
+      return val.accWeight === big
+    })
+    var difference = big - normal
+    var targetWeight = targetNode.weight - difference
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(targetWeight)
       .append('<br>')
   }
 
 }
 
+
+var buildTree = function(root) {
+  root.accWeight = root.weight
+  if (root.children.length <= 0) {
+    root.ok = true
+    return root
+  } else {
+    var childNames = root.children
+    root.children = programs.filter(function(prog) {
+      return childNames.includes(prog.name)
+    })
+    $.each(root.children, function(idx, child) {
+      buildTree(child)
+      root.accWeight += child.accWeight
+    })
+    var ok = true
+    for (var i = 1; i < root.children.length; i++) {
+      ok = ok && (root.children[i-1].accWeight === root.children[i].accWeight)
+    }
+    root.ok = ok
+    return root
+  }
+}
+
+var findLastFalse = function(node) {
+  var last = false
+  while (!last) {
+    var falseChild = node.children.find(function(child) {
+      return child.ok === false
+    })
+    if (falseChild) {
+      node = falseChild
+    } else {
+      last = true
+    }
+  }
+  return node
+}
 
 $(function (){
   $('#main').append('<div id="day7"><h2>day #7</h2></div>')
