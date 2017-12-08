@@ -6,14 +6,14 @@ c inc -20 if c == 10`
 ,puzzleInput
 ]
 
-var com = {
-  pc: 0
-}
+
 
 var day8 = function() {
 
   for (var i = 0; i < input.length; i++) {
-    com.pc = 0
+    var com = {
+      pc: 0
+    }
     var instructions = input[i].split(/\n/)
     for (com.pc = 0; com.pc < instructions.length; com.pc++) {
       var insparts = instructions[com.pc].split(/\s+/)
@@ -48,7 +48,7 @@ var day8 = function() {
         }
       }
     }
-    console.log(com)
+    //console.log(com)
     var max = Number.MIN_SAFE_INTEGER
     $.each(Object.keys(com), function(idx, reg) {
       if (reg === 'pc') {
@@ -69,10 +69,53 @@ var day8 = function() {
 var day8Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var com = {
+      pc: 0
+    }
+    var max = Number.MIN_SAFE_INTEGER
+
+    var instructions = input[i].split(/\n/)
+    for (com.pc = 0; com.pc < instructions.length; com.pc++) {
+      var insparts = instructions[com.pc].split(/\s+/)
+      var reg = insparts[0]
+      var oper = insparts[1]
+      var param = Number(insparts[2])
+      //if = insparts[3]
+      var ifreg = insparts[4]
+      var ifoper = insparts[5]
+      var ifparam = Number(insparts[6])
+
+      if (com[reg] === undefined) {
+        com[reg] = 0
+      }
+      if (com[ifreg] === undefined) {
+        com[ifreg] = 0
+      }
+      var ifresult = false
+      switch (ifoper) {
+        case '>':  ifresult = (com[ifreg] > ifparam); break;
+        case '>=':  ifresult = (com[ifreg] >= ifparam); break;
+        case '==':  ifresult = (com[ifreg] == ifparam); break;
+        case '!=':  ifresult = (com[ifreg] != ifparam); break;
+        case '<=':  ifresult = (com[ifreg] <= ifparam); break;
+        case '<':  ifresult = (com[ifreg] < ifparam); break;
+      }
+      if (ifresult) {
+        if (oper === 'inc') {
+          com[reg] += param
+        } else {
+          com[reg] -= param
+        }
+        if (com[reg] > max) {
+          max = com[reg]
+        }
+      }
+    }
+    //console.log(com)
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(max)
       .append('<br>')
   }
 
