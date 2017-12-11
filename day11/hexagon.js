@@ -30,6 +30,7 @@ var day11 = function() {
       }
       steps++
     }
+
     var distance = Math.max(Math.abs(x), Math.abs(y), Math.abs(z))
     $('#day11').append(input[i])
       .append('<br>&emsp;')
@@ -42,10 +43,34 @@ var day11 = function() {
 var day11Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var x = 0
+    var y = 0
+    var z = 0
+    var steps = 0
+
+    var path = input[i].split(',')
+    var maxDistance = 0
+
+    for (var j = 0; j < path.length; j++) {
+      var direction = path[j]
+      switch (direction) {
+        case 'nw': y++; x--; break;
+        case 'n': y++; z--; break;
+        case 'ne': x++; z--; break;
+        case 'se': y--; x++; break;
+        case 's': y--; z++; break;
+        case 'sw': z++; x--; break;
+      }
+      steps++
+      var distance = Math.max(Math.abs(x), Math.abs(y), Math.abs(z))
+      if (distance > maxDistance) {
+        maxDistance = distance
+      }
+    }
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(maxDistance)
       .append('<br>')
   }
 
