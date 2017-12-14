@@ -39,14 +39,76 @@ var day14 = function() {
 var day14Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var gridSize = 128
+    var hashInputs = []
+    for (var h = 0; h < gridSize; h++) {
+      hashInputs.push(knotHash(input[i]+'-'+h))
+    }
+    // console.log(hashInputs)
+    var bitOutputs = []
+    for (var b = 0; b < hashInputs.length; b++) {
+      bitOutputs[b] = hashInputs[b].split('').reduce((acc, val) => {
+        var num = ("000"+Number.parseInt(val,16).toString(2)).slice(-4)
+        return acc + num
+      },'').split('')
+    }
+    // console.log(bitOutputs)
+
+    var regions = []
+    var rc = 10
+    for (var bi = 0; bi < bitOutputs.length; bi++) {
+      for (var bj = 0; bj < bitOutputs.length; bj++) {
+        if (bitOutputs[bi][bj] === '1') {
+          // find regions
+          var nextSquares = [{'x': bi, 'y':bj, 'region': 'r'+rc}]
+          var timeout = 1000
+          while (nextSquares.length > 0 && --timeout) {
+            var sq = nextSquares.shift()
+            // check if already marked
+            if (bitOutputs[sq.x][sq.y] === sq.region) {
+              continue
+            } else {
+              if (bitOutputs[sq.x][sq.y] !== '1') {
+                console.error('ai meu deus do cel', bitOutputs[sq.x][sq.y])
+              }
+              bitOutputs[sq.x][sq.y] = sq.region
+            }
+            // generate next squares in the four directions
+            //W
+            if (sq.x-1 >= 0 && bitOutputs[sq.x-1][sq.y] === '1') {
+              nextSquares.push({'x': sq.x-1, 'y':sq.y, 'region': sq.region})
+            }
+            //E
+            if (sq.x+1 < gridSize && bitOutputs[sq.x+1][sq.y] === '1') {
+              nextSquares.push({'x': sq.x+1, 'y':sq.y, 'region': sq.region})
+            }
+            //S
+            if (sq.y-1 >=0 && bitOutputs[sq.x][sq.y-1] === '1') {
+              nextSquares.push({'x': sq.x, 'y':sq.y-1, 'region': sq.region})
+            }
+            //N
+            if (sq.y+1 < gridSize && bitOutputs[sq.x][sq.y+1] === '1') {
+              nextSquares.push({'x': sq.x, 'y':sq.y+1, 'region': sq.region})
+            }
+          }
+          if (!timeout) {
+            console.log('timeout!')
+          }
+          // next region
+          regions.push(rc)
+          rc++
+        }
+      }
+    }
+    var regionsCount = regions.length
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(regionsCount)
       .append('<br>')
   }
-
 }
+
 
 var knotHash = function(input) {
     var listLength = 256;
