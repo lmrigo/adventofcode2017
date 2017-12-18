@@ -30,10 +30,34 @@ var day17 = function() {
 var day17Part2 = function () {
 
   for (var i = 1; i < input.length; i++) {
-    
+    // var buffer = [0]
+    var pos = 0
+    var steps = Number(input[i])
+    var spins = 50000000
+    var numNextToZero = -1
+    var buffLen = 1
+    for (var j = 1; j < spins; j++) {
+      // pos = (pos + steps) % buffer.length
+      // buffer.splice(pos+1,0,j)
+      pos = (pos + steps) % buffLen
+      if (pos === 0) {
+        numNextToZero = j
+      }
+      buffLen++
+      pos++
+      // if (j%1000000===0) {
+      //   console.log(j,pos,numNextToZero)
+      // }
+    }
+    //console.log(buffer)
+    // var idx = buffer.indexOf(0)
+    // console.log(buffer[idx-3], buffer[idx-2], buffer[idx-1], buffer[idx], buffer[idx+1], buffer[idx+2], buffer[idx+3])
+    // var answer = buffer[idx+1]
+    var answer = numNextToZero
+
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(answer)
       .append('<br>')
   }
 }
