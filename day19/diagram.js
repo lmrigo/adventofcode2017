@@ -108,10 +108,38 @@ var genNextStates = function(st) {
 var day19Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var lines = input[i].split(/\n/)
+    grid = []
+    $.each(lines, function(idx, val) {
+      grid.push(val.split(''))
+    })
+    // console.log(grid)
+    // find starting point
+    var startIdx = grid[0].findIndex((x) => {return x==='|'})
+    // console.log(startIdx)
+    var letters = grid.reduce((accline, line) => {
+      return accline + line.reduce((acc, val) => { 
+        return acc + (isLetter(val) ? val : '')
+      }, '')
+    }, '')
+    // console.log(letters)
+    var passedLetters = ''
+    var initState = {'x': 0, 'y': startIdx, 'dir': 'D'}
+    var nextStates = [initState]
+    var steps = 0
+    while (passedLetters.length < letters.length && nextStates.length > 0) {
+      steps++
+      var state = nextStates.shift()
+      var val = grid[state.x][state.y]
+      if (isLetter(val)) {
+        passedLetters += val
+      }
+      nextStates.push(...genNextStates(state))
+    }
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(steps)
       .append('<br>')
   }
 }
