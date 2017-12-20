@@ -1,6 +1,10 @@
 var input = [
 `p=<3,0,0>, v=<2,0,0>, a=<-1,0,0>
-p=<4,0,0>, v=<0,0,0>, a=<-2,0,0>`
+p=<4,0,0>, v=<0,0,0>, a=<-2,0,0>`,
+`p=<-6,0,0>, v=<3,0,0>, a=<0,0,0>
+p=<-4,0,0>, v=<2,0,0>, a=<0,0,0>
+p=<-2,0,0>, v=<1,0,0>, a=<0,0,0>
+p=<3,0,0>, v=<-1,0,0>, a=<0,0,0>`
 ,puzzleInput
 ]
 
@@ -20,21 +24,11 @@ var day20 = function() {
           y: Number(pos[1]),
           z: Number(pos[2])
         },
-        // po: {
-        //   x: Number(pos[0]),
-        //   y: Number(pos[1]),
-        //   z: Number(pos[2])
-        // },
         v: {
           x: Number(vel[0]),
           y: Number(vel[1]),
           z: Number(vel[2])
         },
-        // vo: {
-        //   x: Number(vel[0]),
-        //   y: Number(vel[1]),
-        //   z: Number(vel[2])
-        // },
         a: {
           x: Number(acc[0]),
           y: Number(acc[1]),
@@ -61,39 +55,7 @@ var day20 = function() {
     })
     // console.log(particles)
 
-    var timeout = 100
-    var skipIdxs = []
-    // var t = 1
-    while (--timeout && skipIdxs.length < particles.length) {
-      // update particles
-      $.each(particles, (idx, part) => {
-        var absDist = part.absDistance()
-        if (part.minDist > Math.abs(absDist)) {
-          part.minDist = Math.abs(absDist)
-        }
-        // move particles
-        
-        part.v.x += part.a.x
-        part.v.y += part.a.y
-        part.v.z += part.a.z
-        part.p.x += part.v.x
-        part.p.y += part.v.y
-        part.p.z += part.v.z
-        
-        /*
-        // V = Vo + a*t
-        part.v.x = part.v.x + part.a.x * t
-        part.v.y = part.v.y + part.a.y * t
-        part.v.z = part.v.z + part.a.z * t
-        // S = So + Vo*t + (a*t^2)/2
-        part.p.x = part.po.x + part.vo.x*t + (part.a.x*(t*t))/2
-        part.p.y = part.po.y + part.vo.y*t + (part.a.y*(t*t))/2
-        part.p.z = part.po.z + part.vo.z*t + (part.a.z*(t*t))/2
-
-        t++
-        */
-      })
-    }
+    // find the min absolute acceleration
     var minIdx = -1
     var minAcc = Number.MAX_SAFE_INTEGER
     $.each(particles, (idx, part) => {
@@ -115,23 +77,99 @@ var day20 = function() {
 var day20Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var particles = []
+    var lines = input[i].split(/\n/)
+    $.each(lines, (idx, val) => {
+      var parts = val.split(', ')
+      var pos = parts[0].replace(/p=<|>/g,'').split(',')
+      var vel = parts[1].replace(/v=<|>/g,'').split(',')
+      var acc = parts[2].replace(/a=<|>/g,'').split(',')
+      var particle = {
+        p: {
+          x: Number(pos[0]),
+          y: Number(pos[1]),
+          z: Number(pos[2])
+        },
+        v: {
+          x: Number(vel[0]),
+          y: Number(vel[1]),
+          z: Number(vel[2])
+        },
+        a: {
+          x: Number(acc[0]),
+          y: Number(acc[1]),
+          z: Number(acc[2])
+        }
+      }
+      particles.push(particle)
+    })
+    // console.log(particles)
 
-    // var initState = {'x': 0, 'y': startIdx, 'dir': 'D'}
-    // var nextStates = [initState]
-    // var steps = 0
-    // while (passedLetters.length < letters.length && nextStates.length > 0) {
-    //   steps++
-    //   var state = nextStates.shift()
-    //   var val = grid[state.x][state.y]
-    //   if (isLetter(val)) {
-    //     passedLetters += val
-    //   }
-    //   nextStates.push(...genNextStates(state))
-    // }
+    var grid = {}
+    // init grid
+    $.each(particles, (idx, part) => {
+      var key = part.p.x+','+part.p.y+','+part.p.z
+      if (grid[key] === undefined) {
+        grid[key] = idx
+      }
+    })
+
+    var timeout = 10000
+    while (--timeout) {
+      // update particles
+      $.each(particles, (idx, part) => {
+        if (!part) {
+          return true
+        }
+        var key = part.p.x+','+part.p.y+','+part.p.z
+        grid[key] = undefined
+        // move particles
+        part.v.x += part.a.x
+        part.v.y += part.a.y
+        part.v.z += part.a.z
+        part.p.x += part.v.x
+        part.p.y += part.v.y
+        part.p.z += part.v.z
+      })
+
+      var remove = []
+      // check collision
+      $.each(particles, (idx, part) => {
+        if (!part) {
+          return true
+        }
+        var key = part.p.x+','+part.p.y+','+part.p.z
+        if (grid[key] === undefined) {
+          grid[key] = idx
+        } else {
+          if (!remove.includes(grid[key])) {
+            remove.push(grid[key])
+          }
+          remove.push(idx)
+        }
+      })
+      while (remove.length > 0) {
+        var idx = remove.shift()
+        var part = particles[idx]
+        var key = part.p.x+','+part.p.y+','+part.p.z
+        grid[key] = undefined
+        particles[idx] = undefined
+      }
+      // if (timeout%10000===0) {
+      //   var count = particles.reduce((acc, val) => {
+      //     return acc + (val?1:0)
+      //   }, 0)
+      //   console.log(timeout, count)
+      // }
+    }
+
+    var count = particles.reduce((acc, val) => {
+      return acc + (val?1:0)
+    }, 0)
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(count)
       .append('<br>')
   }
 }
