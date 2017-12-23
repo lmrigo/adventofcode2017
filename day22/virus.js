@@ -75,14 +75,69 @@ var turnLeft = function(dir) {
   }
   return next
 }
+var turnBack = function(dir) {
+  var next = ''
+  switch(dir) {
+    case 'U': next = 'D';break;
+    case 'D': next = 'U';break;
+    case 'L': next = 'R';break;
+    case 'R': next = 'L';break;
+  }
+  return next
+}
 
 var day22Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var grid = []
+    var lines = input[i].split(/\n/)
+    for (var l = 0; l < lines.length; l++) {
+      grid[l] = lines[l].split('')
+    }
+
+    // virus
+    var v = {
+      dir: 'U',
+      x: Math.floor(grid.length / 2),
+      y: Math.floor(grid[0].length / 2),
+      move: function() {
+        switch(this.dir) {
+          case 'U': this.x--;break;
+          case 'L': this.y--;break;
+          case 'D': this.x++;break;
+          case 'R': this.y++;break;
+        }
+      }
+    }
+
+    var steps = 0
+    var limit = 10000000
+    var infectionCount = 0
+    while (steps++ < limit) {
+      if (grid[v.x] === undefined) {
+        grid[v.x] = []
+      }
+      if (grid[v.x][v.y] === '#') { // infected
+        v.dir = turnRight(v.dir)
+        grid[v.x][v.y] = 'F' // flagged
+      } else if (grid[v.x][v.y] === 'F') { // flagged
+        v.dir = turnBack(v.dir)
+        grid[v.x][v.y] = '.' // clean
+      } else if (grid[v.x][v.y] === 'W') { // weakened
+        // does not turn
+        grid[v.x][v.y] = '#' // clean
+        infectionCount++
+      } else {
+        v.dir = turnLeft(v.dir)
+        grid[v.x][v.y] = 'W'
+      }
+      v.move()
+    }
+    // console.log(grid)
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(infectionCount)
       .append('<br>')
   }
 }
