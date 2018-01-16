@@ -100,10 +100,46 @@ var day23 = function() {
 var day23Part2 = function () {
 
   for (var i = 0; i < input.length; i++) {
+    var com = new Computer()
+    com.a = 1
+    com.b = 0
+    com.c = 0
+    com.d = 0
+    com.e = 0
+    com.f = 0
+    com.g = 0
+    com.h = 0
+
+    // input program translated from assembly
+    com.b = 57
+    com.c = com.b
+    if (com.a !== 0) {
+      com.b = (com.b*100) + 100000
+      com.c = com.b + 17000
+    }
+    do {
+      com.f = 1
+      com.d = 2
+      com.e = 2
+      for (com.d=2; (com.d*com.d) <= com.b; com.d++) {
+        // check if b is a prime
+        // the assembly doesn't have a % operator,
+        // so it does 2 for loops with d and e and checks if d*e==b.
+        if (com.b%com.d === 0) {
+          com.f = 0
+          break
+        }
+      }
+      if (com.f == 0) { // not a prime
+        com.h++
+      }
+      com.g = com.b - com.c
+      com.b += 17
+    } while (com.g !== 0 ); //stop when b==c (1000 iterations)
 
     $('#part2').append(input[i])
       .append('<br>&emsp;')
-      .append()
+      .append(com.h)
       .append('<br>')
   }
 }
